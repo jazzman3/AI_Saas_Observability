@@ -1,30 +1,21 @@
-# Five Client-Focused AI Portfolio Projects
+# AI Operations Console — authenticated full-stack app + telemetry
 
-Independent, runnable, MIT-licensed demonstration applications. Each subdirectory is intended to become **its own public GitHub repository**. The builds are local MVP demos with automated tests—not claims of cloud deployment, customer adoption, or production security.
+**Business problem:** LLM prototypes lack user accounts, deployment interfaces, cost visibility and basic regression tests. **Target outcome:** A small auditable AI web product that can be extended into a team-facing application.
 
-| Project | Business problem | Demo evidence |
-|---|---|---|
-| 01 Private Knowledge RAG | Document search with defensible citations | Grounded snippets, abstention, retrieval evaluation |
-| 02 Agentic Lead Operations | Lead research to outreach and CRM handoff | Tool pipeline, checkpoints, approval gate, idempotent CRM |
-| 03 AI Receptionist | Missed inbound leads and scheduling friction | Chat intent, leads, UTC slots, booking conflict test |
-| 04 Document Intelligence | Manual invoice rekeying and bad data | Invoice extraction, schema rejection, review and CSV |
-| 05 AI Operations Console | LLM app with no product telemetry | Web UI, API-key auth, cost/latency, regression harness |
+## Shipped features
+Responsive HTML/JS frontend, FastAPI JSON API, account creation with salted scrypt password hashes, random bearer tokens stored hashed in SQLite, per-user query records, LLM optional provider, per-query latency, provider token counts, configurable estimated price and p50/p95 request latency. A small evaluation regression script runs labeled prompts. Health route and Dockerfile included.
 
-## Start here
-For each folder, `python -m venv .venv`, activate it, `pip install -r requirements.txt`, `pytest -q`, then `uvicorn app:app --reload`. Open `http://localhost:8000/docs` (project 05 also serves a frontend at `/`). Use **one server at a time** or assign ports 8001–8005.
+## Local run
+```bash
+pip install -r requirements.txt
+uvicorn app:app --reload
+pytest -q
+python evaluate.py
+```
+Open `http://localhost:8000` to sign up, query and view metrics. By default the provider uses a clearly marked mock answer. To use OpenAI, set `OPENAI_API_KEY`, `OPENAI_MODEL`, and the *current* `INPUT_USD_PER_1M` and `OUTPUT_USD_PER_1M` for accurate estimated USD billing. Defaults are zero instead of a fictitious cost.
 
-## Public claims policy
-- No live URLs, Loom links, client pilots or measured performance data are claimed as existing.
-- `OPENAI_API_KEY` is optional. In its absence, demos use explicitly labeled simplified logic.
-- Do **not** upload sensitive client documents, personal lead information, or real credentials to public demos.
-- Do not claim real CRM, calendar, SMS or email integration where a mock/queue is provided.
+## Security and deployment notes
+This is a runnable local product **not yet internet-production hardened**. Add login/token rotation, email verification, password reset, HTTPS, rate limiting, CSRF analysis for future cookie auth, secrets management, per-tenant RBAC, retention/deletion controls, centralized OpenTelemetry, structured error events, data migrations and a managed PostgreSQL database. The API uses the same origin as the UI. Do not upload actual client information in this demo.
 
-## GitHub publication checklist
-1. Create 5 GitHub repositories using the suggested folder names; initialize from each folder separately.
-2. Run and capture your local unit tests, API screenshots and sample results; record date, environment and test sample sizes.
-3. Add screenshots to `docs/`, your own 60–90-second Loom URL, and a real deployed demo link after deployment.
-4. Add release/version tags, optional CI build, security controls, and measured benchmarks before describing anything as production-grade.
-5. Add repository URLs to your resume only after pushing code and verifying the links.
-
-See `RESUME_AND_CLIENT_SHOWCASE.md` for concise honest bullets, demo scripts and measurement plans.
-
+## Evaluation + outcome narrative
+Run `evaluate.py` only after starting the server. Its keyword coverage is a weak smoke test, **not factual accuracy**. Add human-graded correctness, prompt injection checks, toxicity/PII tests, model comparison and drift regression over versioned datasets. Showcase an end-to-end signup → LLM query → metrics flow, and report verified p50/p95, token usage and cost/request.
